@@ -23,7 +23,9 @@
 
 #include <xmms/configfile.h>
 #include <xmms/titlestring.h>
+#include <xmms/util.h>
 #include <gtk/gtk.h>
+#include <pthread.h>
 #include <string.h>
 #include <timidity.h>
 
