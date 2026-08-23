@@ -10,7 +10,7 @@ libtimidity_la_SOURCES = \
 	xmms-timidity.c \
 	xmms-timidity.h
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	   -I$(top_srcdir) \
 	   $(XMMS_CFLAGS) \
 	   $(LIBTIMIDITY_CFLAGS)
