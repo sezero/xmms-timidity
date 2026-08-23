@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.59])
 
-AC_INIT([xmms-timidity],[0.2])
+AC_INIT([xmms-timidity],[0.3])
 AC_CONFIG_AUX_DIR([autotools])
 AM_INIT_AUTOMAKE([1.9 foreign])
 AC_CONFIG_SRCDIR([src/xmms-timidity.h])
