@@ -79,9 +79,9 @@
 
 	  <widget>
 	    <class>GtkRadioButton</class>
-	    <name>rate_11000</name>
+	    <name>rate_11025</name>
 	    <can_focus>True</can_focus>
-	    <label>11000 Hz</label>
+	    <label>11025 Hz</label>
 	    <active>False</active>
 	    <draw_indicator>True</draw_indicator>
 	    <group>rate</group>
@@ -94,9 +94,9 @@
 
 	  <widget>
 	    <class>GtkRadioButton</class>
-	    <name>rate_22000</name>
+	    <name>rate_22050</name>
 	    <can_focus>True</can_focus>
-	    <label>22000 Hz</label>
+	    <label>22050 Hz</label>
 	    <active>False</active>
 	    <draw_indicator>True</draw_indicator>
 	    <group>rate</group>
@@ -382,7 +382,7 @@
 	  <name>clicked</name>
 	  <handler>gtk_widget_hide</handler>
 	  <object>xmmstimid_conf_wnd</object>
-	  <last_modification_time>Sun, 23 Aug 2026 22:01:56 GMT</last_modification_time>
+	  <last_modification_time>Sun, 23 Aug 2026 23:21:10 GMT</last_modification_time>
 	</signal>
 	<label>Cancel</label>
 	<relief>GTK_RELIEF_NORMAL</relief>

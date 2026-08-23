@@ -83,8 +83,8 @@ static GtkEntry
 static GtkEntry
 	*xmmstimid_conf_sf2_file;
 static GtkToggleButton
-	*xmmstimid_conf_rate_11000,
-	*xmmstimid_conf_rate_22000,
+	*xmmstimid_conf_rate_11025,
+	*xmmstimid_conf_rate_22050,
 	*xmmstimid_conf_rate_44100;
 static GtkToggleButton
 	*xmmstimid_conf_bits_8,
@@ -177,10 +177,10 @@ void xmmstimid_configure(void) {
 				GTK_ENTRY, "config_file");
 		xmmstimid_conf_sf2_file = get_conf_wnd_item(
 				GTK_ENTRY, "sf2_file");
-		xmmstimid_conf_rate_11000 = get_conf_wnd_item(
-				GTK_TOGGLE_BUTTON, "rate_11000");
-		xmmstimid_conf_rate_22000 = get_conf_wnd_item(
-				GTK_TOGGLE_BUTTON, "rate_22000");
+		xmmstimid_conf_rate_11025 = get_conf_wnd_item(
+				GTK_TOGGLE_BUTTON, "rate_11025");
+		xmmstimid_conf_rate_22050 = get_conf_wnd_item(
+				GTK_TOGGLE_BUTTON, "rate_22050");
 		xmmstimid_conf_rate_44100 = get_conf_wnd_item(
 				GTK_TOGGLE_BUTTON, "rate_44100");
 		xmmstimid_conf_bits_8 = get_conf_wnd_item(
@@ -203,8 +203,8 @@ void xmmstimid_configure(void) {
 	gtk_entry_set_text(xmmstimid_conf_sf2_file,
 			xmmstimid_cfg.sf2_file);
 	switch (xmmstimid_cfg.rate) {
-		case 11000: tb = xmmstimid_conf_rate_11000; break;
-		case 22000: tb = xmmstimid_conf_rate_22000; break;
+		case 11025: tb = xmmstimid_conf_rate_11025; break;
+		case 22050: tb = xmmstimid_conf_rate_22050; break;
 		case 44100: tb = xmmstimid_conf_rate_44100; break;
 		default: tb = NULL;
 	}
@@ -237,10 +237,10 @@ void xmmstimid_conf_ok(GtkButton *button, gpointer user_data) {
 	xmmstimid_cfg.sf2_file = g_strdup(
 			gtk_entry_get_text(xmmstimid_conf_sf2_file));
 
-	if (gtk_toggle_button_get_active(xmmstimid_conf_rate_11000))
-		xmmstimid_cfg.rate = 11000;
-	else if (gtk_toggle_button_get_active(xmmstimid_conf_rate_22000))
-		xmmstimid_cfg.rate = 22000;
+	if (gtk_toggle_button_get_active(xmmstimid_conf_rate_11025))
+		xmmstimid_cfg.rate = 11025;
+	else if (gtk_toggle_button_get_active(xmmstimid_conf_rate_22050))
+		xmmstimid_cfg.rate = 22050;
 	else if (gtk_toggle_button_get_active(xmmstimid_conf_rate_44100))
 		xmmstimid_cfg.rate = 44100;
 	if (gtk_toggle_button_get_active(xmmstimid_conf_bits_8))

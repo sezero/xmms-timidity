@@ -27,8 +27,8 @@ create_xmmstimid_conf_wnd (void)
   GtkWidget *frame1;
   GtkWidget *vbox1;
   GSList *rate_group = NULL;
-  GtkWidget *rate_11000;
-  GtkWidget *rate_22000;
+  GtkWidget *rate_11025;
+  GtkWidget *rate_22050;
   GtkWidget *rate_44100;
   GtkWidget *frame2;
   GtkWidget *vbox2;
@@ -90,21 +90,21 @@ create_xmmstimid_conf_wnd (void)
   gtk_container_add (GTK_CONTAINER (frame1), vbox1);
   gtk_container_set_border_width (GTK_CONTAINER (vbox1), 5);
 
-  rate_11000 = gtk_radio_button_new_with_label (rate_group, "11000 Hz");
-  rate_group = gtk_radio_button_group (GTK_RADIO_BUTTON (rate_11000));
-  gtk_widget_ref (rate_11000);
-  gtk_object_set_data_full (GTK_OBJECT (xmmstimid_conf_wnd), "rate_11000", rate_11000,
+  rate_11025 = gtk_radio_button_new_with_label (rate_group, "11025 Hz");
+  rate_group = gtk_radio_button_group (GTK_RADIO_BUTTON (rate_11025));
+  gtk_widget_ref (rate_11025);
+  gtk_object_set_data_full (GTK_OBJECT (xmmstimid_conf_wnd), "rate_11025", rate_11025,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (rate_11000);
-  gtk_box_pack_start (GTK_BOX (vbox1), rate_11000, FALSE, FALSE, 0);
+  gtk_widget_show (rate_11025);
+  gtk_box_pack_start (GTK_BOX (vbox1), rate_11025, FALSE, FALSE, 0);
 
-  rate_22000 = gtk_radio_button_new_with_label (rate_group, "22000 Hz");
-  rate_group = gtk_radio_button_group (GTK_RADIO_BUTTON (rate_22000));
-  gtk_widget_ref (rate_22000);
-  gtk_object_set_data_full (GTK_OBJECT (xmmstimid_conf_wnd), "rate_22000", rate_22000,
+  rate_22050 = gtk_radio_button_new_with_label (rate_group, "22050 Hz");
+  rate_group = gtk_radio_button_group (GTK_RADIO_BUTTON (rate_22050));
+  gtk_widget_ref (rate_22050);
+  gtk_object_set_data_full (GTK_OBJECT (xmmstimid_conf_wnd), "rate_22050", rate_22050,
                             (GtkDestroyNotify) gtk_widget_unref);
-  gtk_widget_show (rate_22000);
-  gtk_box_pack_start (GTK_BOX (vbox1), rate_22000, FALSE, FALSE, 0);
+  gtk_widget_show (rate_22050);
+  gtk_box_pack_start (GTK_BOX (vbox1), rate_22050, FALSE, FALSE, 0);
 
   rate_44100 = gtk_radio_button_new_with_label (rate_group, "44100 Hz");
   rate_group = gtk_radio_button_group (GTK_RADIO_BUTTON (rate_44100));
