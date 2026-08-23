@@ -61,6 +61,7 @@ InputPlugin xmmstimid_ip = {
 
 static struct {
 	gchar *config_file;
+	gchar *sf2_file;
 	gint rate;
 	gint bits;
 	gint channels;
@@ -79,6 +80,8 @@ static gint xmmstimid_seek_to;
 static GtkWidget *xmmstimid_conf_wnd = NULL, *xmmstimid_about_wnd = NULL;
 static GtkEntry
 	*xmmstimid_conf_config_file;
+static GtkEntry
+	*xmmstimid_conf_sf2_file;
 static GtkToggleButton
 	*xmmstimid_conf_rate_11000,
 	*xmmstimid_conf_rate_22000,
@@ -100,6 +103,7 @@ void xmmstimid_init(void) {
 	ConfigFile *cf;
 
 	xmmstimid_cfg.config_file = NULL;
+	xmmstimid_cfg.sf2_file = NULL;
 	xmmstimid_cfg.rate = 44100;
 	xmmstimid_cfg.bits = 16;
 	xmmstimid_cfg.channels = 2;
@@ -109,6 +113,8 @@ void xmmstimid_init(void) {
 	if (cf != NULL) {
 		xmms_cfg_read_string(cf, "TIMIDITY", "config_file",
 				&xmmstimid_cfg.config_file);
+		xmms_cfg_read_string(cf, "TIMIDITY", "sf2_file",
+				&xmmstimid_cfg.sf2_file);
 		xmms_cfg_read_int(cf, "TIMIDITY", "rate",
 				&xmmstimid_cfg.rate);
 		xmms_cfg_read_int(cf, "TIMIDITY", "bits",
@@ -120,6 +126,18 @@ void xmmstimid_init(void) {
 
 	if (xmmstimid_cfg.config_file == NULL)
 		xmmstimid_cfg.config_file = g_strdup("/etc/timidity.cfg");
+
+	if (xmmstimid_cfg.sf2_file == NULL)
+		xmmstimid_cfg.sf2_file = g_strdup("");
+
+#if (LIBTIMIDITY_VERSION >= 0x000208L)
+	if (xmmstimid_cfg.sf2_file && xmmstimid_cfg.sf2_file[0]) {
+		if (mid_set_soundfont(xmmstimid_cfg.sf2_file) < 0) {
+			xmmstimid_initialized = FALSE;
+			return;
+		}
+	}
+#endif
 
 	if (mid_init(xmmstimid_cfg.config_file) != 0) {
 		xmmstimid_initialized = FALSE;
@@ -157,6 +175,8 @@ void xmmstimid_configure(void) {
 	
 		xmmstimid_conf_config_file = get_conf_wnd_item(
 				GTK_ENTRY, "config_file");
+		xmmstimid_conf_sf2_file = get_conf_wnd_item(
+				GTK_ENTRY, "sf2_file");
 		xmmstimid_conf_rate_11000 = get_conf_wnd_item(
 				GTK_TOGGLE_BUTTON, "rate_11000");
 		xmmstimid_conf_rate_22000 = get_conf_wnd_item(
@@ -180,6 +200,8 @@ void xmmstimid_configure(void) {
 
 	gtk_entry_set_text(xmmstimid_conf_config_file,
 			xmmstimid_cfg.config_file);
+	gtk_entry_set_text(xmmstimid_conf_sf2_file,
+			xmmstimid_cfg.sf2_file);
 	switch (xmmstimid_cfg.rate) {
 		case 11000: tb = xmmstimid_conf_rate_11000; break;
 		case 22000: tb = xmmstimid_conf_rate_22000; break;
@@ -205,12 +227,15 @@ void xmmstimid_configure(void) {
 }
 
 void xmmstimid_conf_ok(GtkButton *button, gpointer user_data) {
-	gchar *config_file, *filename;
+	gchar *config_file, *sf2_file, *filename;
 	ConfigFile *cf;
 
 	g_free(xmmstimid_cfg.config_file);
+	g_free(xmmstimid_cfg.sf2_file);
 	xmmstimid_cfg.config_file = g_strdup(
 			gtk_entry_get_text(xmmstimid_conf_config_file));
+	xmmstimid_cfg.sf2_file = g_strdup(
+			gtk_entry_get_text(xmmstimid_conf_sf2_file));
 
 	if (gtk_toggle_button_get_active(xmmstimid_conf_rate_11000))
 		xmmstimid_cfg.rate = 11000;
@@ -233,6 +258,8 @@ void xmmstimid_conf_ok(GtkButton *button, gpointer user_data) {
 
 	xmms_cfg_write_string(cf, "TIMIDITY", "config_file",
 			xmmstimid_cfg.config_file);
+	xmms_cfg_write_string(cf, "TIMIDITY", "sf2_file",
+			xmmstimid_cfg.sf2_file);
 	xmms_cfg_write_int(cf, "TIMIDITY", "rate",
 			xmmstimid_cfg.rate);
 	xmms_cfg_write_int(cf, "TIMIDITY", "bits",

@@ -43,6 +43,9 @@ create_xmmstimid_conf_wnd (void)
   GtkWidget *frame4;
   GtkWidget *vbox5;
   GtkWidget *config_file;
+  GtkWidget *frame5;
+  GtkWidget *vbox8;
+  GtkWidget *sf2_file;
   GtkWidget *hseparator1;
   GtkWidget *hbuttonbox1;
   GtkWidget *conf_ok;
@@ -60,7 +63,7 @@ create_xmmstimid_conf_wnd (void)
   gtk_widget_show (vbox4);
   gtk_container_add (GTK_CONTAINER (xmmstimid_conf_wnd), vbox4);
 
-  table1 = gtk_table_new (3, 2, FALSE);
+  table1 = gtk_table_new (4, 2, FALSE);
   gtk_widget_ref (table1);
   gtk_object_set_data_full (GTK_OBJECT (xmmstimid_conf_wnd), "table1", table1,
                             (GtkDestroyNotify) gtk_widget_unref);
@@ -75,7 +78,7 @@ create_xmmstimid_conf_wnd (void)
   gtk_object_set_data_full (GTK_OBJECT (xmmstimid_conf_wnd), "frame1", frame1,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (frame1);
-  gtk_table_attach (GTK_TABLE (table1), frame1, 0, 1, 1, 2,
+  gtk_table_attach (GTK_TABLE (table1), frame1, 0, 1, 2, 3,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
 
@@ -116,7 +119,7 @@ create_xmmstimid_conf_wnd (void)
   gtk_object_set_data_full (GTK_OBJECT (xmmstimid_conf_wnd), "frame2", frame2,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (frame2);
-  gtk_table_attach (GTK_TABLE (table1), frame2, 1, 2, 1, 2,
+  gtk_table_attach (GTK_TABLE (table1), frame2, 1, 2, 2, 3,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
 
@@ -149,7 +152,7 @@ create_xmmstimid_conf_wnd (void)
   gtk_object_set_data_full (GTK_OBJECT (xmmstimid_conf_wnd), "frame3", frame3,
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (frame3);
-  gtk_table_attach (GTK_TABLE (table1), frame3, 0, 1, 2, 3,
+  gtk_table_attach (GTK_TABLE (table1), frame3, 0, 1, 3, 4,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
 
@@ -200,6 +203,30 @@ create_xmmstimid_conf_wnd (void)
                             (GtkDestroyNotify) gtk_widget_unref);
   gtk_widget_show (config_file);
   gtk_box_pack_start (GTK_BOX (vbox5), config_file, TRUE, TRUE, 0);
+
+  frame5 = gtk_frame_new ("Optional Soundfont (*.sf2)");
+  gtk_widget_ref (frame5);
+  gtk_object_set_data_full (GTK_OBJECT (xmmstimid_conf_wnd), "frame5", frame5,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (frame5);
+  gtk_table_attach (GTK_TABLE (table1), frame5, 0, 2, 1, 2,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
+
+  vbox8 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_ref (vbox8);
+  gtk_object_set_data_full (GTK_OBJECT (xmmstimid_conf_wnd), "vbox8", vbox8,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (vbox8);
+  gtk_container_add (GTK_CONTAINER (frame5), vbox8);
+  gtk_container_set_border_width (GTK_CONTAINER (vbox8), 5);
+
+  sf2_file = gtk_entry_new ();
+  gtk_widget_ref (sf2_file);
+  gtk_object_set_data_full (GTK_OBJECT (xmmstimid_conf_wnd), "sf2_file", sf2_file,
+                            (GtkDestroyNotify) gtk_widget_unref);
+  gtk_widget_show (sf2_file);
+  gtk_box_pack_start (GTK_BOX (vbox8), sf2_file, TRUE, TRUE, 0);
 
   hseparator1 = gtk_hseparator_new ();
   gtk_widget_ref (hseparator1);
