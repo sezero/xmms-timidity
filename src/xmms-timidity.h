@@ -22,18 +22,6 @@
 
 #include <xmms/plugin.h>
 
-extern InputPlugin xmmstimid_ip;
-
-static void xmmstimid_init(void);
-static void xmmstimid_about(void);
-static void xmmstimid_configure(void);
-static int xmmstimid_is_our_file(char *filename);
-static void xmmstimid_play_file(char *filename);
-static void xmmstimid_stop(void);
-static void xmmstimid_pause(short p);
-static void xmmstimid_seek(int time);
-static int xmmstimid_get_time(void);
-static void xmmstimid_cleanup(void);
-static void xmmstimid_get_song_info(char *filename, char **title, int *length);
+extern InputPlugin *get_iplugin_info(void);
 
 #endif

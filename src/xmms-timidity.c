@@ -32,33 +32,6 @@
 #include "xmms-timidity.h"
 #include "interface.h"
 
-InputPlugin xmmstimid_ip = {
-	NULL,
-	NULL,
-	NULL,
-	xmmstimid_init,
-	xmmstimid_about,
-	xmmstimid_configure,
-	xmmstimid_is_our_file,
-	NULL,
-	xmmstimid_play_file,
-	xmmstimid_stop,
-	xmmstimid_pause,
-	xmmstimid_seek,
-	NULL,
-	xmmstimid_get_time,
-	NULL,
-	NULL,
-	xmmstimid_cleanup,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	xmmstimid_get_song_info,
-	NULL,
-	NULL
-};
-
 static struct {
 	gchar *config_file;
 	gchar *sf2_file;
@@ -93,13 +66,24 @@ static GtkToggleButton
 	*xmmstimid_conf_channels_1,
 	*xmmstimid_conf_channels_2;
 
-InputPlugin *get_iplugin_info(void) {
-	xmmstimid_ip.description = g_strdup_printf(
-			"TiMidity Player %s", VERSION);
-	return &xmmstimid_ip;
-}
 
-void xmmstimid_init(void) {
+static InputPlugin xmmstimid_ip;
+
+static void xmmstimid_init(void);
+static void xmmstimid_about(void);
+static void xmmstimid_configure(void);
+static int xmmstimid_is_our_file(char *filename);
+static void xmmstimid_play_file(char *filename);
+static void xmmstimid_stop(void);
+static void xmmstimid_pause(short p);
+static void xmmstimid_seek(int time);
+static int xmmstimid_get_time(void);
+static void xmmstimid_cleanup(void);
+static void xmmstimid_get_song_info(char *filename, char **title, int *length);
+static void xmmstimid_conf_ok(GtkButton *button, gpointer user_data);
+
+
+static void xmmstimid_init(void) {
 	ConfigFile *cf;
 
 	xmmstimid_cfg.config_file = NULL;
@@ -146,7 +130,7 @@ void xmmstimid_init(void) {
 	xmmstimid_initialized = TRUE;
 }
 
-void xmmstimid_about(void) {
+static void xmmstimid_about(void) {
 	if (xmmstimid_about_wnd == NULL) {
 		gchar *name_version;
 		xmmstimid_about_wnd = create_xmmstimid_about_wnd();
@@ -163,9 +147,7 @@ void xmmstimid_about(void) {
 	gdk_window_raise(xmmstimid_about_wnd->window);
 }
 
-void xmmstimid_conf_ok(GtkButton *button, gpointer user_data);
-
-void xmmstimid_configure(void) {
+static void xmmstimid_configure(void) {
 	GtkToggleButton *tb;
 	if (xmmstimid_conf_wnd == NULL) {
 		xmmstimid_conf_wnd = create_xmmstimid_conf_wnd();
@@ -226,7 +208,7 @@ void xmmstimid_configure(void) {
 	gdk_window_raise(xmmstimid_conf_wnd->window);
 }
 
-void xmmstimid_conf_ok(GtkButton *button, gpointer user_data) {
+static void xmmstimid_conf_ok(GtkButton *button, gpointer user_data) {
 	gchar *config_file, *sf2_file, *filename;
 	ConfigFile *cf;
 
@@ -274,7 +256,7 @@ void xmmstimid_conf_ok(GtkButton *button, gpointer user_data) {
 	gtk_widget_hide(xmmstimid_conf_wnd);
 }
 
-int xmmstimid_is_our_file(char *filename) {
+static int xmmstimid_is_our_file(char *filename) {
 	gchar *ext;
 
 	ext = strrchr(filename, '.');
@@ -286,19 +268,18 @@ int xmmstimid_is_our_file(char *filename) {
 }
 
 static void *xmmstimid_play_loop(void *arg) {
+	const size_t width = (xmmstimid_opts.format & 0x10) ? 2 : 1;
 	size_t buffer_size;
 	void *buffer;
 	size_t bytes_read;
 	AFormat fmt;
 
-	buffer_size = ((xmmstimid_opts.format == MID_AUDIO_S16LSB) ? 16 : 8) * 
-			xmmstimid_opts.channels / 8 *
-			xmmstimid_opts.buffer_size;
+	buffer_size = width * xmmstimid_opts.channels * xmmstimid_opts.buffer_size;
 
 	buffer = g_malloc(buffer_size);
 	if (buffer == NULL) pthread_exit(NULL);
 
-	fmt = (xmmstimid_opts.format == MID_AUDIO_S16LSB) ? FMT_S16_LE : FMT_S8;
+	fmt = (xmmstimid_opts.format & 0x10) ? FMT_S16_LE : FMT_U8;
 
 	while (xmmstimid_going) {
 		bytes_read = mid_song_read_wave(xmmstimid_song,
@@ -362,7 +343,7 @@ static gchar *xmmstimid_get_title(gchar *filename) {
 	return title;
 }
 
-void xmmstimid_play_file(char *filename) {
+static void xmmstimid_play_file(char *filename) {
 	MidIStream *stream;
 	gchar *title;
 
@@ -382,8 +363,7 @@ void xmmstimid_play_file(char *filename) {
 	xmmstimid_audio_error = FALSE;
 
 	xmmstimid_opts.rate = xmmstimid_cfg.rate;
-	xmmstimid_opts.format = (xmmstimid_cfg.bits == 16) ?
-		MID_AUDIO_S16LSB : MID_AUDIO_S8;
+	xmmstimid_opts.format = (xmmstimid_cfg.bits == 16) ? MID_AUDIO_S16LSB : MID_AUDIO_U8;
 	xmmstimid_opts.channels = xmmstimid_cfg.channels;
 	xmmstimid_opts.buffer_size = xmmstimid_cfg.buffer_size;
 
@@ -396,9 +376,8 @@ void xmmstimid_play_file(char *filename) {
 	}
 
 	if (xmmstimid_ip.output->open_audio(
-				(xmmstimid_opts.format == MID_AUDIO_S16LSB) ?
-				FMT_S16_LE : FMT_S8,
-				xmmstimid_opts.rate, xmmstimid_opts.channels) == 0) {
+			(xmmstimid_opts.format & 0x10) ? FMT_S16_LE : FMT_U8,
+			xmmstimid_opts.rate, xmmstimid_opts.channels) == 0) {
 		xmmstimid_audio_error = TRUE;
 		mid_song_free(xmmstimid_song);
 		xmmstimid_song = NULL;
@@ -423,7 +402,7 @@ void xmmstimid_play_file(char *filename) {
 	}
 }
 
-void xmmstimid_stop(void) {
+static void xmmstimid_stop(void) {
 	if (xmmstimid_song != NULL && xmmstimid_going) {
 		xmmstimid_going = FALSE;
 		pthread_join(xmmstimid_decode_thread, NULL);
@@ -433,11 +412,11 @@ void xmmstimid_stop(void) {
 	}
 }
 
-void xmmstimid_pause(short p) {
+static void xmmstimid_pause(short p) {
 	xmmstimid_ip.output->pause(p);
 }
 
-void xmmstimid_seek(int time) {
+static void xmmstimid_seek(int time) {
 	xmmstimid_seek_to = time;
 	xmmstimid_eof = FALSE;
 
@@ -445,7 +424,7 @@ void xmmstimid_seek(int time) {
 		xmms_usleep(10000);
 }
 
-int xmmstimid_get_time(void) {
+static int xmmstimid_get_time(void) {
 	if (xmmstimid_audio_error)
 		return -2;
 	if (xmmstimid_song == NULL)
@@ -457,12 +436,12 @@ int xmmstimid_get_time(void) {
 	return mid_song_get_time(xmmstimid_song);
 }
 
-void xmmstimid_cleanup(void) {
+static void xmmstimid_cleanup(void) {
 	if (xmmstimid_initialized)
 		mid_exit();
 }
 
-void xmmstimid_get_song_info(char *filename, char **title, int *length) {
+static void xmmstimid_get_song_info(char *filename, char **title, int *length) {
 	MidIStream *stream;
 	MidSongOptions opts;
 	MidSong *song;
@@ -476,8 +455,7 @@ void xmmstimid_get_song_info(char *filename, char **title, int *length) {
 	if (stream == NULL) return;
 
 	opts.rate = xmmstimid_cfg.rate;
-	opts.format = (xmmstimid_cfg.bits == 16) ?
-		MID_AUDIO_S16LSB : MID_AUDIO_S8;
+	opts.format = (xmmstimid_cfg.bits == 16) ? MID_AUDIO_S16LSB : MID_AUDIO_U8;
 	opts.channels = xmmstimid_cfg.channels;
 	opts.buffer_size = 8;
 
@@ -490,5 +468,38 @@ void xmmstimid_get_song_info(char *filename, char **title, int *length) {
 	*title = xmmstimid_get_title(filename);
 
 	mid_song_free(song);
+}
+
+static InputPlugin xmmstimid_ip = {
+	NULL,
+	NULL,
+	NULL,
+	xmmstimid_init,
+	xmmstimid_about,
+	xmmstimid_configure,
+	xmmstimid_is_our_file,
+	NULL,
+	xmmstimid_play_file,
+	xmmstimid_stop,
+	xmmstimid_pause,
+	xmmstimid_seek,
+	NULL,
+	xmmstimid_get_time,
+	NULL,
+	NULL,
+	xmmstimid_cleanup,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	xmmstimid_get_song_info,
+	NULL,
+	NULL
+};
+
+InputPlugin *get_iplugin_info(void) {
+	xmmstimid_ip.description = g_strdup_printf(
+			"TiMidity Player %s", VERSION);
+	return &xmmstimid_ip;
 }
 
