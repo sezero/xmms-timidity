@@ -32,14 +32,18 @@
 #include "xmms-timidity.h"
 #include "interface.h"
 
-static struct {
-	gchar *config_file;
-	gchar *sf2_file;
-	gint rate;
-	gint bits;
-	gint channels;
-	gint buffer_size;
-} xmmstimid_cfg;
+static void xmmstimid_init(void);
+static void xmmstimid_about(void);
+static void xmmstimid_configure(void);
+static int xmmstimid_is_our_file(char *filename);
+static void xmmstimid_play_file(char *filename);
+static void xmmstimid_stop(void);
+static void xmmstimid_pause(short p);
+static void xmmstimid_seek(int time);
+static int xmmstimid_get_time(void);
+static void xmmstimid_cleanup(void);
+static void xmmstimid_get_song_info(char *filename, char **title, int *length);
+static void xmmstimid_conf_ok(GtkButton *button, gpointer user_data);
 
 static gboolean xmmstimid_initialized = FALSE;
 static pthread_t xmmstimid_decode_thread;
@@ -66,21 +70,41 @@ static GtkToggleButton
 	*xmmstimid_conf_channels_1,
 	*xmmstimid_conf_channels_2;
 
+static struct {
+	gchar *config_file;
+	gchar *sf2_file;
+	gint rate;
+	gint bits;
+	gint channels;
+	gint buffer_size;
+} xmmstimid_cfg;
 
-static InputPlugin xmmstimid_ip;
-
-static void xmmstimid_init(void);
-static void xmmstimid_about(void);
-static void xmmstimid_configure(void);
-static int xmmstimid_is_our_file(char *filename);
-static void xmmstimid_play_file(char *filename);
-static void xmmstimid_stop(void);
-static void xmmstimid_pause(short p);
-static void xmmstimid_seek(int time);
-static int xmmstimid_get_time(void);
-static void xmmstimid_cleanup(void);
-static void xmmstimid_get_song_info(char *filename, char **title, int *length);
-static void xmmstimid_conf_ok(GtkButton *button, gpointer user_data);
+static InputPlugin xmmstimid_ip = {
+	NULL,
+	NULL,
+	NULL,
+	xmmstimid_init,
+	xmmstimid_about,
+	xmmstimid_configure,
+	xmmstimid_is_our_file,
+	NULL,
+	xmmstimid_play_file,
+	xmmstimid_stop,
+	xmmstimid_pause,
+	xmmstimid_seek,
+	NULL,
+	xmmstimid_get_time,
+	NULL,
+	NULL,
+	xmmstimid_cleanup,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	xmmstimid_get_song_info,
+	NULL,
+	NULL
+};
 
 
 static void xmmstimid_init(void) {
@@ -209,7 +233,7 @@ static void xmmstimid_configure(void) {
 }
 
 static void xmmstimid_conf_ok(GtkButton *button, gpointer user_data) {
-	gchar *config_file, *sf2_file, *filename;
+	gchar *filename;
 	ConfigFile *cf;
 
 	g_free(xmmstimid_cfg.config_file);
@@ -469,33 +493,6 @@ static void xmmstimid_get_song_info(char *filename, char **title, int *length) {
 
 	mid_song_free(song);
 }
-
-static InputPlugin xmmstimid_ip = {
-	NULL,
-	NULL,
-	NULL,
-	xmmstimid_init,
-	xmmstimid_about,
-	xmmstimid_configure,
-	xmmstimid_is_our_file,
-	NULL,
-	xmmstimid_play_file,
-	xmmstimid_stop,
-	xmmstimid_pause,
-	xmmstimid_seek,
-	NULL,
-	xmmstimid_get_time,
-	NULL,
-	NULL,
-	xmmstimid_cleanup,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	xmmstimid_get_song_info,
-	NULL,
-	NULL
-};
 
 InputPlugin *get_iplugin_info(void) {
 	xmmstimid_ip.description = g_strdup_printf(
